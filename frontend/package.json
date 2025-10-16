@@ -1,0 +1,30 @@
+{
+  "name": "boscodesk-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host :: --port 3000",
+    "build": "vite build",
+    "preview": "vite preview --host :: --port 3000"
+  },
+  "dependencies": {
+    "@radix-ui/react-toast": "^1.1.5",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "framer-motion": "^10.16.4",
+    "lucide-react": "^0.285.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
+    "tailwind-merge": "^1.14.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.3",
+    "vite": "^7.1.10"
+  }
+}
