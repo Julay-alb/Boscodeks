@@ -18,7 +18,7 @@ npm -v
 Desde la raíz del proyecto (donde está `package.json`):
 
 ```bash
-npm installa
+npm install
 ```
 
 ## Ejecutar en desarrollo
