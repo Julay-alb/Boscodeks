@@ -21,7 +21,7 @@ const Header = ({ onNewTicket, user }) => {
             <div>
               <h1 className="text-3xl font-bold gradient-text">Don Bosco</h1>
               <p className="text-sm text-purple-300">
-                Sistema de Gesti\u00f3n de Tickets
+                Sistema de Gestion de Tickets "Consorcio Salesianos"
               </p>
             </div>
           </div>
@@ -35,7 +35,7 @@ const Header = ({ onNewTicket, user }) => {
                   onClick={() => auth.logout()}
                   className="flex items-center gap-2"
                 >
-                  <LogOut className="w-4 h-4" /> Cerrar sesi\u00f3n
+                  <LogOut className="w-4 h-4" /> Cerrar sesion
                 </Button>
               </>
             ) : (

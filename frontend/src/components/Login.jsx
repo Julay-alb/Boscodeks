@@ -33,12 +33,12 @@ const Login = ({ onClose, onLoginSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/80" onClick={onClose} />
 
       <div className="relative w-full max-w-md rounded-2xl bg-white/5 border border-white/10 p-6 backdrop-blur-md">
-        <h2 className="text-2xl font-bold mb-2">Iniciar sesión</h2>
+        <h2 className="text-2xl font-bold mb-2">Iniciar sesion</h2>
         <p className="text-sm text-purple-200 mb-4">
-          Accede a tu cuenta del helpdesk
+          Accede a tu cuenta de "BoscoDesk"
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">

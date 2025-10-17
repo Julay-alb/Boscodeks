@@ -43,28 +43,19 @@ function notify() {
   });
 }
 
-// Mock login: accepts any non-empty username/password and returns a user object
+import { request } from "@/lib/api";
+
+// login against backend
 export async function login(username, password) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (!username || !password) {
-        return reject(new Error("Usuario o contraseña inválidos"));
-      }
-
-      // simple mock user object
-      const user = {
-        id: Date.now().toString(),
-        username,
-        name: username,
-        role: username === "admin" ? "admin" : "agent",
-        token: `mock-token-${Date.now()}`,
-      };
-
-      writeUser(user);
-      notify();
-      resolve(user);
-    }, 400);
+  const data = await request("/auth/login", {
+    method: "POST",
+    body: { username, password },
   });
+  // data: { token, user }
+  const user = { ...data.user, token: data.token };
+  writeUser(user);
+  notify();
+  return user;
 }
 
 export function logout() {

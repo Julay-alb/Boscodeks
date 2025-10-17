@@ -8,6 +8,7 @@ import TicketForm from "@/components/TicketForm";
 import TicketDetail from "@/components/TicketDetail";
 import Login from "@/components/Login";
 import auth from "@/lib/auth";
+import { request } from "@/lib/api";
 
 function App() {
   const [tickets, setTickets] = useState([]);
@@ -18,16 +19,41 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const savedTickets = localStorage.getItem("helpdesk_tickets");
-    if (savedTickets) {
-      setTickets(JSON.parse(savedTickets));
+    let mounted = true;
+
+    async function init() {
+      const u = auth.getUser();
+      setUser(u);
+      const unsub = auth.onAuthChange((next) => setUser(next));
+
+      // try to load tickets from backend if we have a token
+      try {
+        if (u?.token) {
+          const data = await request("/tickets", {
+            method: "GET",
+            token: u.token,
+          });
+          if (mounted) setTickets(data);
+        } else {
+          const savedTickets = localStorage.getItem("helpdesk_tickets");
+          if (savedTickets) setTickets(JSON.parse(savedTickets));
+        }
+      } catch (err) {
+        // fallback to localStorage
+        const savedTickets = localStorage.getItem("helpdesk_tickets");
+        if (savedTickets) setTickets(JSON.parse(savedTickets));
+      }
+
+      return unsub;
     }
 
-    // init auth
-    const u = auth.getUser();
-    setUser(u);
-    const unsub = auth.onAuthChange((next) => setUser(next));
-    return () => unsub();
+    let unsubPromise;
+    init().then((u) => (unsubPromise = u));
+
+    return () => {
+      mounted = false;
+      if (unsubPromise) unsubPromise();
+    };
   }, []);
 
   useEffect(() => {
@@ -35,64 +61,179 @@ function App() {
   }, [tickets]);
 
   const addTicket = (ticket) => {
-    const newTicket = {
-      ...ticket,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: "open",
-      comments: [],
-    };
-    setTickets([newTicket, ...tickets]);
-    setShowForm(false);
+    (async () => {
+      const u = auth.getUser();
+      try {
+        if (u?.token) {
+          const created = await request("/tickets", {
+            method: "POST",
+            body: ticket,
+            token: u.token,
+          });
+          setTickets([created, ...tickets]);
+        } else {
+          const newTicket = {
+            ...ticket,
+            id: Date.now().toString(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: "open",
+            comments: [],
+          };
+          setTickets([newTicket, ...tickets]);
+        }
+      } catch (err) {
+        // fallback local
+        const newTicket = {
+          ...ticket,
+          id: Date.now().toString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          status: "open",
+          comments: [],
+        };
+        setTickets([newTicket, ...tickets]);
+      } finally {
+        setShowForm(false);
+      }
+    })();
   };
 
   const updateTicket = (ticketId, updates) => {
-    setTickets(
-      tickets.map((ticket) =>
-        ticket.id === ticketId
-          ? { ...ticket, ...updates, updatedAt: new Date().toISOString() }
-          : ticket
-      )
-    );
-    if (selectedTicket?.id === ticketId) {
-      setSelectedTicket({ ...selectedTicket, ...updates });
-    }
+    (async () => {
+      const u = auth.getUser();
+      try {
+        if (u?.token) {
+          const updated = await request(`/tickets/${ticketId}`, {
+            method: "PUT",
+            body: updates,
+            token: u.token,
+          });
+          setTickets(tickets.map((t) => (t.id === ticketId ? updated : t)));
+          if (selectedTicket?.id === ticketId) setSelectedTicket(updated);
+        } else {
+          setTickets(
+            tickets.map((ticket) =>
+              ticket.id === ticketId
+                ? { ...ticket, ...updates, updatedAt: new Date().toISOString() }
+                : ticket
+            )
+          );
+          if (selectedTicket?.id === ticketId)
+            setSelectedTicket({ ...selectedTicket, ...updates });
+        }
+      } catch (err) {
+        // optimistic local update fallback
+        setTickets(
+          tickets.map((ticket) =>
+            ticket.id === ticketId
+              ? { ...ticket, ...updates, updatedAt: new Date().toISOString() }
+              : ticket
+          )
+        );
+        if (selectedTicket?.id === ticketId)
+          setSelectedTicket({ ...selectedTicket, ...updates });
+      }
+    })();
   };
 
   const deleteTicket = (ticketId) => {
-    setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
-    if (selectedTicket?.id === ticketId) {
-      setSelectedTicket(null);
-    }
+    (async () => {
+      const u = auth.getUser();
+      try {
+        if (u?.token) {
+          await request(`/tickets/${ticketId}`, {
+            method: "DELETE",
+            token: u.token,
+          });
+          setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
+        } else {
+          setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
+        }
+      } catch (err) {
+        // fallback: remove locally
+        setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
+      } finally {
+        if (selectedTicket?.id === ticketId) setSelectedTicket(null);
+      }
+    })();
   };
 
   const addComment = (ticketId, comment) => {
-    const newComment = {
-      id: Date.now().toString(),
-      text: comment,
-      author: "Usuario",
-      createdAt: new Date().toISOString(),
-    };
-
-    setTickets(
-      tickets.map((ticket) =>
-        ticket.id === ticketId
-          ? {
-              ...ticket,
-              comments: [...(ticket.comments || []), newComment],
-              updatedAt: new Date().toISOString(),
-            }
-          : ticket
-      )
-    );
-
-    if (selectedTicket?.id === ticketId) {
-      setSelectedTicket({
-        ...selectedTicket,
-        comments: [...(selectedTicket.comments || []), newComment],
-      });
-    }
+    (async () => {
+      const u = auth.getUser();
+      try {
+        if (u?.token) {
+          const created = await request(`/tickets/${ticketId}/comments`, {
+            method: "POST",
+            body: { text: comment },
+            token: u.token,
+          });
+          setTickets(
+            tickets.map((t) =>
+              t.id === ticketId
+                ? {
+                    ...t,
+                    comments: [...(t.comments || []), created],
+                    updatedAt: created.createdAt,
+                  }
+                : t
+            )
+          );
+          if (selectedTicket?.id === ticketId)
+            setSelectedTicket({
+              ...selectedTicket,
+              comments: [...(selectedTicket.comments || []), created],
+            });
+        } else {
+          const newComment = {
+            id: Date.now().toString(),
+            text: comment,
+            author: "Usuario",
+            createdAt: new Date().toISOString(),
+          };
+          setTickets(
+            tickets.map((t) =>
+              t.id === ticketId
+                ? {
+                    ...t,
+                    comments: [...(t.comments || []), newComment],
+                    updatedAt: new Date().toISOString(),
+                  }
+                : t
+            )
+          );
+          if (selectedTicket?.id === ticketId)
+            setSelectedTicket({
+              ...selectedTicket,
+              comments: [...(selectedTicket.comments || []), newComment],
+            });
+        }
+      } catch (err) {
+        const newComment = {
+          id: Date.now().toString(),
+          text: comment,
+          author: "Usuario",
+          createdAt: new Date().toISOString(),
+        };
+        setTickets(
+          tickets.map((t) =>
+            t.id === ticketId
+              ? {
+                  ...t,
+                  comments: [...(t.comments || []), newComment],
+                  updatedAt: new Date().toISOString(),
+                }
+              : t
+          )
+        );
+        if (selectedTicket?.id === ticketId)
+          setSelectedTicket({
+            ...selectedTicket,
+            comments: [...(selectedTicket.comments || []), newComment],
+          });
+      }
+    })();
   };
 
   const filteredTickets = tickets.filter((ticket) => {
