@@ -1,55 +1,67 @@
-FastAPI backend scaffold for BoscoDesk
+# BoscoDesk — Backend (FastAPI)
 
-Quick start:
+Este backend es una pequeña aplicación FastAPI para desarrollo local.
+Proporciona autenticación mediante JWT y operaciones CRUD para tickets y
+comentarios.
 
-1. Create a virtual environment (recommended):
+## Resumen
+
+- Aplicación: FastAPI
+- Base de datos: `base/helpdesk.db` (SQLite)
+
+## Requisitos
+
+- Python 3.10 o superior
+
+## Instalación rápida
+
+1. Crear y activar un entorno virtual
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows (bash.exe)
+source .venv/Scripts/activate
 ```
 
-2. Install dependencies:
+2. Instalar dependencias
 
 ```bash
 pip install -r requirements.txt
-# opcional: instalar bcrypt para hashing seguro de contraseñas
-pip install bcrypt
 ```
 
-3. Inicializar la base de datos (si no existe):
+3. Inicializar la base de datos
 
 ```bash
 python ../base/init_db.py --seed
 ```
 
-4. Run the server:
+4. Ejecutar el servidor (desarrollo)
 
 ```bash
 uvicorn backend.server:app --reload --port 8000
 ```
 
-The server exposes (main endpoints):
+## Endpoints principales
 
-- POST `/auth/login`
-- GET `/tickets` (requires Authorization: Bearer <token>)
-- POST `/tickets` (requires Authorization)
-- PUT `/tickets/{id}`
-- DELETE `/tickets/{id}`
-- POST `/tickets/{id}/comments`
+- POST /auth/login
+- GET /tickets
+- POST /tickets
+- PUT /tickets/{id}
+- DELETE /tickets/{id}
+- POST /tickets/{id}/comments
 
-Notes:
+## Tests
 
-- The backend uses SQLite at `base/helpdesk.db`. The init script `base/init_db.py` creates this file from `base/schema.sql` and `base/seed.sql`.
-- Set `HELPDESK_SECRET` environment variable to override the default JWT secret used by the server.
-- For production use a proper DB (Postgres/MySQL), a migration tool (Alembic) and secure secret management.
-
-Example calls (curl):
+Para ejecutar tests en un entorno aislado:
 
 ```bash
-# login
-curl -X POST http://localhost:8000/auth/login -H 'Content-Type: application/json' -d '{"username":"admin","password":"changeme"}'
-
-# get tickets (token is the JWT returned)
-curl -H "Authorization: Bearer <TOKEN>" http://localhost:8000/tickets
+python ../base/init_db.py --seed --out tmp/test_helpdesk.db --reset
+export HELPDESK_DB_PATH="$(pwd)/tmp/test_helpdesk.db"
+pytest -q backend/tests
 ```
+
+## Producción
+
+Para producción considera usar Postgres o MySQL, gestión segura de secretos,
+bcrypt para hashing y Alembic para migraciones.
+
+---
