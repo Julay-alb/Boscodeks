@@ -34,6 +34,10 @@ Thumbs.db
 coverage/
 *.tgz
 
+# Python caches and temporary test DBs
+__pycache__/
+tmp/
+
 # Optional: lock files if you don't want to track them
 # package-lock.json
 # pnpm-lock.yaml
