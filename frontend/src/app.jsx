@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from "react";
-import { Helmet } from "react-helmet";
-import { Toaster } from "@/components/ui/toaster";
-import Header from "@/components/Header";
-import Dashboard from "@/components/Dashboard";
-import TicketList from "@/components/TicketList";
-import TicketForm from "@/components/TicketForm";
-import TicketDetail from "@/components/TicketDetail";
-import Login from "@/components/Login";
-import UserManagement from "@/components/UserManagement";
-import auth from "@/lib/auth";
-import { request } from "@/lib/api";
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
+import { Toaster } from '@/components/ui/toaster';
+import Header from '@/components/Header';
+import Dashboard from '@/components/Dashboard';
+import TicketList from '@/components/TicketList';
+import TicketForm from '@/components/TicketForm';
+import TicketDetail from '@/components/TicketDetail';
+import Login from '@/components/Login';
+import UserManagement from '@/components/UserManagement';
+import auth from '@/lib/auth';
+import { request } from '@/lib/api';
 
 function App() {
   const [tickets, setTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterPriority, setFilterPriority] = useState("all");
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterPriority, setFilterPriority] = useState('all');
   const [user, setUser] = useState(null);
   const [showUserMgmt, setShowUserMgmt] = useState(false);
 
@@ -31,18 +31,18 @@ function App() {
       // try to load tickets from backend if we have a token
       try {
         if (u?.token) {
-          const data = await request("/tickets", {
-            method: "GET",
+          const data = await request('/tickets', {
+            method: 'GET',
             token: u.token,
           });
           if (mounted) setTickets(data);
         } else {
-          const savedTickets = localStorage.getItem("helpdesk_tickets");
+          const savedTickets = localStorage.getItem('helpdesk_tickets');
           if (savedTickets) setTickets(JSON.parse(savedTickets));
         }
       } catch (err) {
         // fallback to localStorage
-        const savedTickets = localStorage.getItem("helpdesk_tickets");
+        const savedTickets = localStorage.getItem('helpdesk_tickets');
         if (savedTickets) setTickets(JSON.parse(savedTickets));
       }
 
@@ -59,7 +59,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("helpdesk_tickets", JSON.stringify(tickets));
+    localStorage.setItem('helpdesk_tickets', JSON.stringify(tickets));
   }, [tickets]);
 
   const addTicket = (ticket) => {
@@ -67,8 +67,8 @@ function App() {
       const u = auth.getUser();
       try {
         if (u?.token) {
-          const created = await request("/tickets", {
-            method: "POST",
+          const created = await request('/tickets', {
+            method: 'POST',
             body: ticket,
             token: u.token,
           });
@@ -79,7 +79,7 @@ function App() {
             id: Date.now().toString(),
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            status: "open",
+            status: 'open',
             comments: [],
           };
           setTickets([newTicket, ...tickets]);
@@ -91,7 +91,7 @@ function App() {
           id: Date.now().toString(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          status: "open",
+          status: 'open',
           comments: [],
         };
         setTickets([newTicket, ...tickets]);
@@ -107,7 +107,7 @@ function App() {
       try {
         if (u?.token) {
           const updated = await request(`/tickets/${ticketId}`, {
-            method: "PUT",
+            method: 'PUT',
             body: updates,
             token: u.token,
           });
@@ -121,8 +121,7 @@ function App() {
                 : ticket
             )
           );
-          if (selectedTicket?.id === ticketId)
-            setSelectedTicket({ ...selectedTicket, ...updates });
+          if (selectedTicket?.id === ticketId) setSelectedTicket({ ...selectedTicket, ...updates });
         }
       } catch (err) {
         // optimistic local update fallback
@@ -133,8 +132,7 @@ function App() {
               : ticket
           )
         );
-        if (selectedTicket?.id === ticketId)
-          setSelectedTicket({ ...selectedTicket, ...updates });
+        if (selectedTicket?.id === ticketId) setSelectedTicket({ ...selectedTicket, ...updates });
       }
     })();
   };
@@ -145,7 +143,7 @@ function App() {
       try {
         if (u?.token) {
           await request(`/tickets/${ticketId}`, {
-            method: "DELETE",
+            method: 'DELETE',
             token: u.token,
           });
           setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
@@ -167,7 +165,7 @@ function App() {
       try {
         if (u?.token) {
           const created = await request(`/tickets/${ticketId}/comments`, {
-            method: "POST",
+            method: 'POST',
             body: { text: comment },
             token: u.token,
           });
@@ -191,7 +189,7 @@ function App() {
           const newComment = {
             id: Date.now().toString(),
             text: comment,
-            author: "Usuario",
+            author: 'Usuario',
             createdAt: new Date().toISOString(),
           };
           setTickets(
@@ -215,7 +213,7 @@ function App() {
         const newComment = {
           id: Date.now().toString(),
           text: comment,
-          author: "Usuario",
+          author: 'Usuario',
           createdAt: new Date().toISOString(),
         };
         setTickets(
@@ -239,17 +237,15 @@ function App() {
   };
 
   const filteredTickets = tickets.filter((ticket) => {
-    const statusMatch =
-      filterStatus === "all" || ticket.status === filterStatus;
-    const priorityMatch =
-      filterPriority === "all" || ticket.priority === filterPriority;
+    const statusMatch = filterStatus === 'all' || ticket.status === filterStatus;
+    const priorityMatch = filterPriority === 'all' || ticket.priority === filterPriority;
     return statusMatch && priorityMatch;
   });
 
   return (
     <>
       <Helmet>
-        <title>Helpdesk sistema de gestion</title>
+        <title>Fundacion Don Bosco</title>
         <meta
           name="description"
           content="Sistema profesional de helpdesk para gestionar tickets de soporte de manera eficiente"
@@ -276,9 +272,7 @@ function App() {
           />
         </main>
 
-        {showForm && (
-          <TicketForm onSubmit={addTicket} onClose={() => setShowForm(false)} />
-        )}
+        {showForm && <TicketForm onSubmit={addTicket} onClose={() => setShowForm(false)} />}
 
         {selectedTicket && (
           <TicketDetail
@@ -296,8 +290,8 @@ function App() {
             onClose={() => setShowUserMgmt(false)}
             onCreateUser={(u) => {
               // optimistic local create: store in localStorage
-              const existing = JSON.parse(localStorage.getItem("helpdesk_users") || "[]");
-              localStorage.setItem("helpdesk_users", JSON.stringify([u, ...existing]));
+              const existing = JSON.parse(localStorage.getItem('helpdesk_users') || '[]');
+              localStorage.setItem('helpdesk_users', JSON.stringify([u, ...existing]));
               setShowUserMgmt(false);
             }}
           />

@@ -1,38 +1,28 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { X, Trash2, MessageSquare, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { X, Trash2, MessageSquare, Send } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
 
-const TicketDetail = ({
-  ticket,
-  onClose,
-  onUpdate,
-  onDelete,
-  onAddComment,
-}) => {
-  const [comment, setComment] = useState("");
+const TicketDetail = ({ ticket, onClose, onUpdate, onDelete, onAddComment }) => {
+  const [comment, setComment] = useState('');
 
   const handleStatusChange = (newStatus) => {
     onUpdate(ticket.id, { status: newStatus });
     toast({
-      title: "Estado actualizado",
+      title: 'Estado actualizado',
       description: `El ticket ahora está ${
-        newStatus === "open"
-          ? "abierto"
-          : newStatus === "in-progress"
-          ? "en progreso"
-          : "cerrado"
+        newStatus === 'open' ? 'abierto' : newStatus === 'in-progress' ? 'en progreso' : 'cerrado'
       }`,
     });
   };
 
   const handleDelete = () => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este ticket?")) {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este ticket?')) {
       onDelete(ticket.id);
       toast({
-        title: "Ticket eliminado",
-        description: "El ticket ha sido eliminado correctamente",
+        title: 'Ticket eliminado',
+        description: 'El ticket ha sido eliminado correctamente',
       });
       onClose();
     }
@@ -43,24 +33,24 @@ const TicketDetail = ({
     if (!comment.trim()) return;
 
     onAddComment(ticket.id, comment);
-    setComment("");
+    setComment('');
     toast({
-      title: "Comentario añadido",
-      description: "Tu comentario ha sido agregado correctamente",
+      title: 'Comentario añadido',
+      description: 'Tu comentario ha sido agregado correctamente',
     });
   };
 
   const priorityConfig = {
-    low: { label: "Baja", color: "bg-blue-500" },
-    medium: { label: "Media", color: "bg-yellow-500" },
-    high: { label: "Alta", color: "bg-orange-500" },
-    urgent: { label: "Urgente", color: "bg-red-500" },
+    low: { label: 'Baja', color: 'bg-blue-500' },
+    medium: { label: 'Media', color: 'bg-yellow-500' },
+    high: { label: 'Alta', color: 'bg-orange-500' },
+    urgent: { label: 'Urgente', color: 'bg-red-500' },
   };
 
   const statusConfig = {
-    open: { label: "Abierto", color: "bg-red-500" },
-    "in-progress": { label: "En Progreso", color: "bg-yellow-500" },
-    closed: { label: "Cerrado", color: "bg-green-500" },
+    open: { label: 'Abierto', color: 'bg-red-500' },
+    'in-progress': { label: 'En Progreso', color: 'bg-yellow-500' },
+    closed: { label: 'Cerrado', color: 'bg-green-500' },
   };
 
   return (
@@ -80,9 +70,7 @@ const TicketDetail = ({
       >
         <div className="flex items-start justify-between mb-6">
           <div className="flex-1">
-            <h2 className="text-3xl font-bold text-white mb-2">
-              {ticket.title}
-            </h2>
+            <h2 className="text-3xl font-bold text-white mb-2">{ticket.title}</h2>
             <div className="flex gap-3 flex-wrap">
               <span
                 className={`${
@@ -110,9 +98,7 @@ const TicketDetail = ({
 
         <div className="space-y-6">
           <div className="glass-effect rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-purple-200 mb-3">
-              Descripción
-            </h3>
+            <h3 className="text-lg font-semibold text-purple-200 mb-3">Descripción</h3>
             <p className="text-white leading-relaxed">{ticket.description}</p>
           </div>
 
@@ -120,15 +106,13 @@ const TicketDetail = ({
             <div className="glass-effect rounded-xl p-4">
               <p className="text-sm text-purple-400 mb-1">Creado</p>
               <p className="text-white font-semibold">
-                {new Date(ticket.createdAt).toLocaleString("es-ES")}
+                {new Date(ticket.createdAt).toLocaleString('es-ES')}
               </p>
             </div>
             <div className="glass-effect rounded-xl p-4">
-              <p className="text-sm text-purple-400 mb-1">
-                última actualización
-              </p>
+              <p className="text-sm text-purple-400 mb-1">última actualización</p>
               <p className="text-white font-semibold">
-                {new Date(ticket.updatedAt).toLocaleString("es-ES")}
+                {new Date(ticket.updatedAt).toLocaleString('es-ES')}
               </p>
             </div>
           </div>
@@ -141,34 +125,28 @@ const TicketDetail = ({
           )}
 
           <div className="glass-effect rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-purple-200 mb-4">
-              Cambiar Estado
-            </h3>
+            <h3 className="text-lg font-semibold text-purple-200 mb-4">Cambiar Estado</h3>
             <div className="flex gap-3 flex-wrap">
               <Button
-                onClick={() => handleStatusChange("open")}
+                onClick={() => handleStatusChange('open')}
                 className={`${
-                  ticket.status === "open" ? "bg-red-600" : "bg-red-600/50"
+                  ticket.status === 'open' ? 'bg-red-600' : 'bg-red-600/50'
                 } hover:bg-red-700 text-white`}
               >
                 Abierto
               </Button>
               <Button
-                onClick={() => handleStatusChange("in-progress")}
+                onClick={() => handleStatusChange('in-progress')}
                 className={`${
-                  ticket.status === "in-progress"
-                    ? "bg-yellow-600"
-                    : "bg-yellow-600/50"
+                  ticket.status === 'in-progress' ? 'bg-yellow-600' : 'bg-yellow-600/50'
                 } hover:bg-yellow-700 text-white`}
               >
                 En Progreso
               </Button>
               <Button
-                onClick={() => handleStatusChange("closed")}
+                onClick={() => handleStatusChange('closed')}
                 className={`${
-                  ticket.status === "closed"
-                    ? "bg-green-600"
-                    : "bg-green-600/50"
+                  ticket.status === 'closed' ? 'bg-green-600' : 'bg-green-600/50'
                 } hover:bg-green-700 text-white`}
               >
                 Cerrado
@@ -193,11 +171,9 @@ const TicketDetail = ({
                   className="bg-white/5 rounded-lg p-4 border border-white/10"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-purple-300">
-                      {comment.author}
-                    </span>
+                    <span className="font-semibold text-purple-300">{comment.author}</span>
                     <span className="text-sm text-purple-400">
-                      {new Date(comment.createdAt).toLocaleString("es-ES")}
+                      {new Date(comment.createdAt).toLocaleString('es-ES')}
                     </span>
                   </div>
                   <p className="text-white">{comment.text}</p>
@@ -226,7 +202,7 @@ const TicketDetail = ({
           {/** `user` prop must be passed from parent App */}
           {/** Show delete button only if current user exists and is admin */}
           {/** eslint-disable-next-line react/prop-types */}
-          {typeof user !== "undefined" && user?.role === "admin" && (
+          {typeof user !== 'undefined' && user?.role === 'admin' && (
             <Button
               onClick={handleDelete}
               variant="destructive"

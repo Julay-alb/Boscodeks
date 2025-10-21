@@ -1,8 +1,8 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { Ticket, Plus, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import auth from "@/lib/auth";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Ticket, Plus, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import auth from '@/lib/auth';
 
 const Header = ({ onNewTicket, user }) => {
   return (
@@ -30,9 +30,9 @@ const Header = ({ onNewTicket, user }) => {
             {user ? (
               <>
                 <div className="text-sm text-purple-100 mr-2">{user.name}</div>
-                {user.role === "admin" && (
+                {user.role === 'admin' && (
                   <Button
-                    onClick={() => (typeof onManageUsers === "function" ? onManageUsers() : null)}
+                    onClick={() => (typeof onManageUsers === 'function' ? onManageUsers() : null)}
                     variant="outline"
                     className="mr-2"
                   >
