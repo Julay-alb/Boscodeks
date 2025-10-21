@@ -30,6 +30,15 @@ const Header = ({ onNewTicket, user }) => {
             {user ? (
               <>
                 <div className="text-sm text-purple-100 mr-2">{user.name}</div>
+                {user.role === "admin" && (
+                  <Button
+                    onClick={() => (typeof onManageUsers === "function" ? onManageUsers() : null)}
+                    variant="outline"
+                    className="mr-2"
+                  >
+                    Usuarios
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onClick={() => auth.logout()}

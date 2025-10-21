@@ -222,14 +222,20 @@ const TicketDetail = ({
             </form>
           </div>
 
-          <Button
-            onClick={handleDelete}
-            variant="destructive"
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-6 rounded-xl"
-          >
-            <Trash2 className="w-5 h-5 mr-2" />
-            Eliminar Ticket
-          </Button>
+          {/** Only admin can delete tickets */}
+          {/** `user` prop must be passed from parent App */}
+          {/** Show delete button only if current user exists and is admin */}
+          {/** eslint-disable-next-line react/prop-types */}
+          {typeof user !== "undefined" && user?.role === "admin" && (
+            <Button
+              onClick={handleDelete}
+              variant="destructive"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-6 rounded-xl"
+            >
+              <Trash2 className="w-5 h-5 mr-2" />
+              Eliminar Ticket
+            </Button>
+          )}
         </div>
       </motion.div>
     </motion.div>

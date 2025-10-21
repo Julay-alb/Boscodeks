@@ -7,6 +7,7 @@ import TicketList from "@/components/TicketList";
 import TicketForm from "@/components/TicketForm";
 import TicketDetail from "@/components/TicketDetail";
 import Login from "@/components/Login";
+import UserManagement from "@/components/UserManagement";
 import auth from "@/lib/auth";
 import { request } from "@/lib/api";
 
@@ -17,6 +18,7 @@ function App() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
   const [user, setUser] = useState(null);
+  const [showUserMgmt, setShowUserMgmt] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -247,7 +249,7 @@ function App() {
   return (
     <>
       <Helmet>
-        <title>Helpdesk - Sistema de Gestión de Tickets</title>
+        <title>Helpdesk sistema de gestion</title>
         <meta
           name="description"
           content="Sistema profesional de helpdesk para gestionar tickets de soporte de manera eficiente"
@@ -255,7 +257,11 @@ function App() {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900">
-        <Header user={user} onNewTicket={() => setShowForm(true)} />
+        <Header
+          user={user}
+          onNewTicket={() => setShowForm(true)}
+          onManageUsers={() => setShowUserMgmt(true)}
+        />
 
         <main className="container mx-auto px-4 py-8">
           <Dashboard tickets={tickets} />
@@ -277,10 +283,23 @@ function App() {
         {selectedTicket && (
           <TicketDetail
             ticket={selectedTicket}
+            user={user}
             onClose={() => setSelectedTicket(null)}
             onUpdate={updateTicket}
             onDelete={deleteTicket}
             onAddComment={addComment}
+          />
+        )}
+
+        {showUserMgmt && (
+          <UserManagement
+            onClose={() => setShowUserMgmt(false)}
+            onCreateUser={(u) => {
+              // optimistic local create: store in localStorage
+              const existing = JSON.parse(localStorage.getItem("helpdesk_users") || "[]");
+              localStorage.setItem("helpdesk_users", JSON.stringify([u, ...existing]));
+              setShowUserMgmt(false);
+            }}
           />
         )}
 

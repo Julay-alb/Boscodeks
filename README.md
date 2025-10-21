@@ -43,7 +43,7 @@ npm run preview
 Estas instrucciones usan el `docker-compose.yml` incluido en la raíz. El
 servicio levanta dos contenedores: `backend` (FastAPI) y `frontend` (Vite).
 
-1) Requisitos locales
+1. Requisitos locales
 
 - Docker y Docker Compose instalados en tu máquina.
 
@@ -75,6 +75,7 @@ Puedes inicializarla de dos maneras:
 - Ejecutar el script `base/init_db.py` localmente antes de levantar los
 
   contenedores y montar la carpeta donde quedó el fichero en el volumen `db_data`.
+
 - O entrar al contenedor y ejecutar el script dentro:
 
 ```bash
@@ -106,4 +107,3 @@ Notas
 - Por simplicidad usamos SQLite en un volumen; para producción considera
 
   usar Postgres/MySQL y migraciones con Alembic.
-
