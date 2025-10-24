@@ -4,6 +4,7 @@ import sqlite3
 import time
 from typing import Optional
 
+import bcrypt
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, Header
 from contextlib import asynccontextmanager
@@ -36,9 +37,6 @@ app.add_middleware(
 SECRET = os.environ.get("HELPDESK_SECRET", "cambiame_por_una_clave_segura")
 
 
-# lifespan handler above prints startup info; no need for on_event startup handler
-
-
 class LoginIn(BaseModel):
     username: str
     password: str
@@ -69,20 +67,51 @@ def get_db():
 
 def create_token(username: str):
     payload = {"sub": username, "iat": int(time.time())}
-    return jwt.encode(payload, SECRET, algorithm="HS256")
+    token = jwt.encode(payload, SECRET, algorithm="HS256")
+    # PyJWT sometimes returns bytes (older versions) — ensure str
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
+    return token
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    try:
-        import bcrypt
+    """
+    Verifica contraseña contra:
+      1) bcrypt (si el hash parece ser bcrypt)
+      2) sha256 hex (legacy, 64 caracteres hex)
+      3) comparación plain text (solo para desarrollo)
+    """
+    if hashed is None:
+        return False
 
-        return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    # Asegurarnos que trabajamos con str
+    if isinstance(hashed, bytes):
+        try:
+            hashed = hashed.decode("utf-8")
+        except Exception:
+            # si no se puede decodificar, tratar como bytes para bcrypt
+            try:
+                return bcrypt.checkpw(plain.encode("utf-8"), hashed)
+            except Exception:
+                return False
+
+    # Intentar bcrypt first (bcrypt hashes empiezan por $2b$ o $2a$ o $2y$ típicamente)
+    try:
+        if hashed.startswith("$2a$") or hashed.startswith("$2b$") or hashed.startswith("$2y$"):
+            return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
     except Exception:
-        # fallback SHA256 compare (seed may have plain or sha256)
-        if len(hashed) == 64:
+        # si bcrypt falla, seguimos con los siguientes pasos
+        pass
+
+    # Fallback SHA256 (hash hex de 64 chars)
+    try:
+        if len(hashed) == 64 and all(c in "0123456789abcdef" for c in hashed.lower()):
             return hashlib.sha256(plain.encode("utf-8")).hexdigest() == hashed
-        # if DB stored plain (seed), compare directly (development only)
-        return plain == hashed
+    except Exception:
+        pass
+
+    # último recurso: comparar texto plano (solo desarrollo)
+    return plain == hashed
 
 
 def get_current_user(
@@ -132,24 +161,26 @@ def login(data: LoginIn):
     )
     row = cur.fetchone()
     conn.close()
+
     if not row:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    # debug: log stored hash and verification result
+
     try:
         result = verify_password(data.password, row["password_hash"])
     except Exception as e:
         print("auth debug: verify_password raised:", e)
         result = False
-    # keep debug print short to satisfy linters
-    hash_prefix = row["password_hash"][:8]
+
+    hash_prefix = (row["password_hash"][:8] + "...") if row["password_hash"] else "None"
     print(
         "auth debug: login user=",
         data.username,
         "hash=",
-        hash_prefix + "...",
+        hash_prefix,
         "verify=",
         result,
     )
+
     if not result:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
@@ -251,7 +282,7 @@ def update_ticket(
         values.append(ticket_id)
         prefix = ", ".join(fields)
         sql = (
-            f"UPDATE tickets SET {prefix}, updated_at = datetime('now') " "WHERE id = ?"
+            f"UPDATE tickets SET {prefix}, updated_at = datetime('now') WHERE id = ?"
         )
         conn.execute(sql, tuple(values))
         conn.commit()
