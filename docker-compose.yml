@@ -10,6 +10,7 @@ services:
     environment:
       - HELPDESK_DB_PATH=/data/helpdesk.db
     command: python init_db.py --reset --seed
+    # Este servicio inicializa la base de datos antes de que el backend la use
 
   backend:
     build:
@@ -23,6 +24,7 @@ services:
       - HELPDESK_DB_PATH=/data/helpdesk.db
     depends_on:
       - initdb
+    # El backend espera que la base esté lista, por eso depende de initdb
 
   frontend:
     build:
@@ -32,6 +34,8 @@ services:
       - "3000:3000"
     environment:
       - VITE_BACKEND_URL=http://localhost:8000
+    # El frontend se conecta al backend en el puerto 8000
 
 volumes:
   db_data:
+    # Volumen compartido entre initdb y backend para la base de datos
