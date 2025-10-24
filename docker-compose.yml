@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - db_data:/data
-    command: python init_db.py
+    command: python init_db.py --reset --seed
 
   backend:
     build:
