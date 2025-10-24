@@ -1,6 +1,14 @@
 version: "3.8"
 
 services:
+  initdb:
+    build:
+      context: ./base
+      dockerfile: Dockerfile
+    volumes:
+      - db_data:/data
+    command: python init_db.py
+
   backend:
     build:
       context: ./backend
@@ -11,6 +19,8 @@ services:
       - "8000:8000"
     environment:
       - HELPDESK_DB_PATH=/data/helpdesk.db
+    depends_on:
+      - initdb
 
   frontend:
     build:
