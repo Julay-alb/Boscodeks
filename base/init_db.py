@@ -13,8 +13,8 @@ import os
 import hashlib
 import argparse
 
-DB_PATH = os.getenv("HELPDESK_DB_PATH", "/data/helpdesk.db")
 HERE = os.path.dirname(__file__)
+DB_PATH = os.getenv("HELPDESK_DB_PATH", os.path.join(HERE, "helpdesk.db"))
 SCHEMA = os.path.join(HERE, "schema.sql")
 SEED = os.path.join(HERE, "seed.sql")
 
