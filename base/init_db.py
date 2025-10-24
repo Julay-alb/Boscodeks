@@ -3,15 +3,12 @@
 Usage:
   python init_db.py         # creates /data/helpdesk.db using schema.sql
   python init_db.py --seed  # also loads seed.sql
-Notes:
-- If bcrypt is installed, passwords in seed.sql will be hashed using bcrypt.
-  Otherwise they will be replaced with a SHA256 hash (not recommended for production).
 """
 
 import sqlite3
 import os
-import hashlib
 import argparse
+import bcrypt
 
 HERE = os.path.dirname(__file__)
 DB_PATH = os.getenv("HELPDESK_DB_PATH", os.path.join(HERE, "helpdesk.db"))
@@ -20,14 +17,8 @@ SEED = os.path.join(HERE, "seed.sql")
 
 
 def hash_password(plain: str) -> str:
-    try:
-        import bcrypt
-        salt = bcrypt.gensalt()
-        return bcrypt.hashpw(plain.encode("utf-8"), salt).decode("utf-8")
-    except Exception:
-        # fallback: SHA256 (not secure for production)
-        print("[warning] bcrypt not available; falling back to SHA256 for password hashing")
-        return hashlib.sha256(plain.encode("utf-8")).hexdigest()
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(plain.encode("utf-8"), salt).decode("utf-8")
 
 
 def run_sql_file(conn: sqlite3.Connection, path: str):
@@ -48,7 +39,6 @@ def init_db(seed: bool = False, reset: bool = False, out_path: str | None = None
     print(f"Initialized database at {target}")
 
     if seed and os.path.exists(SEED):
-        # Read seed.sql, but intercept password placeholders to hash them
         with open(SEED, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
