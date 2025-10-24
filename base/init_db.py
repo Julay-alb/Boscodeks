@@ -80,9 +80,11 @@ def init_db(seed: bool = False, reset: bool = False, out_path: str | None = None
     if not user:
         hashed_password = hash_password("admin")
         cursor.execute(
-         "INSERT INTO users (username, password) VALUES (?, ?)",
-            ("admin", hashed_password)
-        )
+            "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+        ("admin", hashed_password)
+    )
+    
+        
         print("Usuario admin creado por defecto.")
     else:
         print("Usuario admin ya existe.")
