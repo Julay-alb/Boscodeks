@@ -1,9 +1,8 @@
 """Init script for helpdesk SQLite DB.
 
 Usage:
-  python init_db.py         # creates base/helpdesk.db using schema.sql
+  python init_db.py         # creates /data/helpdesk.db using schema.sql
   python init_db.py --seed  # also loads seed.sql
-
 Notes:
 - If bcrypt is installed, passwords in seed.sql will be hashed using bcrypt.
   Otherwise they will be replaced with a SHA256 hash (not recommended for production).
@@ -14,8 +13,8 @@ import os
 import hashlib
 import argparse
 
+DB_PATH = os.getenv("HELPDESK_DB_PATH", "/data/helpdesk.db")
 HERE = os.path.dirname(__file__)
-DB_PATH = os.path.join(HERE, "helpdesk.db")
 SCHEMA = os.path.join(HERE, "schema.sql")
 SEED = os.path.join(HERE, "seed.sql")
 
@@ -23,14 +22,11 @@ SEED = os.path.join(HERE, "seed.sql")
 def hash_password(plain: str) -> str:
     try:
         import bcrypt
-
         salt = bcrypt.gensalt()
         return bcrypt.hashpw(plain.encode("utf-8"), salt).decode("utf-8")
     except Exception:
         # fallback: SHA256 (not secure for production)
-        print(
-            "[warning] bcrypt not available; falling back to SHA256 for password hashing"
-        )
+        print("[warning] bcrypt not available; falling back to SHA256 for password hashing")
         return hashlib.sha256(plain.encode("utf-8")).hexdigest()
 
 
@@ -58,9 +54,7 @@ def init_db(seed: bool = False, reset: bool = False, out_path: str | None = None
 
         fixed = []
         for line in lines:
-            # naive replacement for VALUES ('user', 'Name', 'changeme', 'role') pattern
             if "INSERT INTO users" in line and "changeme" in line:
-                # replace 'changeme' with hashed value
                 hashed = hash_password("changeme")
                 fixed_line = line.replace("'changeme'", f"'{hashed}'")
                 fixed.append(fixed_line)
@@ -71,7 +65,6 @@ def init_db(seed: bool = False, reset: bool = False, out_path: str | None = None
         conn.executescript(script)
         print("Seed data applied")
 
-    #USUARIO ADMIN POR DEFECTO
     # Crear usuario admin por defecto si no existe
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username = ?", ("admin",))
@@ -80,16 +73,13 @@ def init_db(seed: bool = False, reset: bool = False, out_path: str | None = None
     if not user:
         hashed_password = hash_password("admin")
         cursor.execute(
-            "INSERT INTO users (username, password_hash) VALUES (?, ?)",
-        ("admin", hashed_password)
-    )
-    
-        
+            "INSERT INTO users (username, full_name, password_hash, role) VALUES (?, ?, ?, ?)",
+            ("admin", "Administrador", hashed_password, "admin")
+        )
         print("Usuario admin creado por defecto.")
     else:
         print("Usuario admin ya existe.")
-    #USUARIO ADMIN POR DEFECTO
-    
+
     conn.commit()
     conn.close()
 
@@ -97,12 +87,8 @@ def init_db(seed: bool = False, reset: bool = False, out_path: str | None = None
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--seed", action="store_true", help="also apply seed.sql")
-    p.add_argument(
-        "--reset", action="store_true", help="delete existing DB before creating"
-    )
-    p.add_argument(
-        "--out", type=str, default=None, help="path for the output DB file; defaults to base/helpdesk.db"
-    )
+    p.add_argument("--reset", action="store_true", help="delete existing DB before creating")
+    p.add_argument("--out", type=str, default=None, help="path for the output DB file; defaults to /data/helpdesk.db")
     args = p.parse_args()
 
     init_db(seed=args.seed, reset=args.reset, out_path=args.out)
