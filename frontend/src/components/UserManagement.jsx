@@ -5,9 +5,17 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
 const AREAS = ['BILBAO', 'CHUNIZA', 'SAN JOSE', 'ESTRELLITA', 'SEDE ADMINISTRATIVA'];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-const UserManagement = ({ onClose, onCreateUser }) => {
-  const [form, setForm] = useState({ username: '', full_name: '', role: 'agent', areas: [] });
+const UserManagement = ({ onClose, onUserCreated }) => {
+  const [form, setForm] = useState({
+    username: '',
+    full_name: '',
+    password: '',
+    role: 'agent',
+    areas: [],
+  });
+  const [loading, setLoading] = useState(false);
 
   const toggleArea = (a) => {
     setForm((s) => ({
@@ -16,20 +24,52 @@ const UserManagement = ({ onClose, onCreateUser }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.username.trim()) {
+
+    if (!form.username.trim() || !form.password.trim()) {
       toast({
         title: 'Error',
-        description: 'El usuario necesita un nombre de usuario',
+        description: 'El usuario y la contraseña son obligatorios.',
         variant: 'destructive',
       });
       return;
     }
-    const user = { ...form, id: Date.now().toString() };
-    if (typeof onCreateUser === 'function') onCreateUser(user);
-    toast({ title: 'Usuario creado', description: `Usuario ${user.username} creado` });
-    onClose();
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || 'Error al crear el usuario');
+      }
+
+      const newUser = await res.json();
+      toast({
+        title: 'Usuario creado',
+        description: `Usuario ${newUser.username} creado correctamente.`,
+      });
+
+      if (typeof onUserCreated === 'function') onUserCreated(newUser);
+      onClose();
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,6 +102,7 @@ const UserManagement = ({ onClose, onCreateUser }) => {
               onChange={(e) => setForm({ ...form, username: e.target.value })}
             />
           </div>
+
           <div>
             <label className="block text-sm font-semibold text-purple-200 mb-2">
               Nombre completo
@@ -72,6 +113,17 @@ const UserManagement = ({ onClose, onCreateUser }) => {
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-purple-200 mb-2">Contraseña</label>
+            <input
+              type="password"
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-purple-200 mb-2">Rol</label>
             <select
@@ -103,9 +155,10 @@ const UserManagement = ({ onClose, onCreateUser }) => {
           <div className="flex gap-3 pt-4">
             <Button
               type="submit"
+              disabled={loading}
               className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
             >
-              Crear Usuario
+              {loading ? 'Creando...' : 'Crear Usuario'}
             </Button>
             <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancelar
