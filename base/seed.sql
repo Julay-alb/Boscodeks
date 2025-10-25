@@ -1,10 +1,12 @@
 -- Seed data for helpdesk SQLite DB
 
--- Insert admin user (password will be hashed by init_db.py)
+-- Admin user (password 'changeme')
 INSERT INTO users (username, full_name, password_hash, role)
-VALUES
-('admin', 'Julian Albarracin', 'changeme', 'admin'),
-('agent1', 'Agente Uno', 'changeme', 'agent');
+VALUES ('admin', 'Julian Albarracin', 'changeme', 'admin');
+
+-- Agent user (password 'changeme')
+INSERT INTO users (username, full_name, password_hash, role)
+VALUES ('agent1', 'Agente Uno', 'changeme', 'agent');
 
 -- Example tickets
 INSERT INTO tickets (title, description, priority, status, reporter_id, assignee_id)
