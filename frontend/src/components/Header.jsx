@@ -20,7 +20,7 @@ const Header = ({ onNewTicket, onManageUsers, user }) => {
               <Ticket className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold gradient-text">Don Bosco</h1>
+              <h1 className="text-3xl font-bold gradient-text">Don Bosco FEDB</h1>
               <p className="text-sm text-purple-300">
                 Sistema de Gestión de Tickets "Consorcio Salesianos"
               </p>

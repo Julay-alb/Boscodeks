@@ -32,7 +32,7 @@ def init_db():
 
 
 def test_login_admin():
-    r = client.post("/auth/login", json={"username": "admin", "password": "changeme"})
+    r = client.post("/auth/login", json={"username": "admin", "password": "admin123"})
     assert r.status_code == 200
     data = r.json()
     assert "token" in data
