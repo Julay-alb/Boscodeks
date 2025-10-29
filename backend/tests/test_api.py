@@ -45,7 +45,7 @@ def test_get_tickets_requires_auth():
 
 
 def test_get_tickets_with_token():
-    r = client.post("/auth/login", json={"username": "admin", "password": "changeme"})
+    r = client.post("/auth/login", json={"username": "admin", "password": "admin123"})
     assert r.status_code == 200
     token = r.json()["token"]
     r2 = client.get("/tickets", headers={"Authorization": f"Bearer {token}"})
