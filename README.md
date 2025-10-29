@@ -1,109 +1,173 @@
-# Boscodesk — Aplicación Helpdesk (Vite + React + Tailwind)
+# 🧭 Boscodesk — Aplicación Helpdesk (Vite + React + Tailwind + FastAPI)
 
-Pequeño README en español para arrancar y depurar el proyecto localmente.
+Aplicación tipo **Helpdesk** con frontend en **Vite + React + Tailwind** y backend en **FastAPI**.  
+Este README explica cómo ejecutar y depurar el proyecto localmente o con **Docker Compose**.
 
-## Requisitos
+---
 
-- Node.js (recomendado LTS: 18.x o 20.x). Comprueba con:
+## 🚀 Requisitos previos
+
+### Entorno local
+
+- **Node.js** (versión recomendada: **18.x** o **20.x**)
+- **npm** o **yarn**
+- **Python 3.10+**
+- **Git Bash / WSL / PowerShell** (en Windows)
+
+Verifica tus versiones:
 
 ```bash
 node -v
 npm -v
+python --version
 ```
 
-- Git Bash/WSL o cualquier terminal en Windows (tu shell actual es `bash.exe`).
+### Con Docker
 
-## Instalar dependencias
+- **Docker** y **Docker Compose** instalados y funcionando correctamente.
 
-Desde la raíz del proyecto (donde está `package.json`):
+---
+
+## ⚙️ Instalación del frontend
+
+Desde la carpeta raíz del proyecto (donde está `package.json`):
 
 ```bash
 npm install
 ```
 
-## Ejecutar en desarrollo
+---
+
+## 🧩 Ejecución en desarrollo
+
+Inicia el servidor de desarrollo:
 
 ```bash
 npm run dev
 ```
 
-Esto arrancará Vite en el puerto 3000. Abre:
+Por defecto, Vite usará el **puerto 3000**.  
+Accede desde el navegador a:
 
-- http://localhost:3000/
+👉 [http://localhost:3000](http://localhost:3000)
 
-## Build y preview
+---
+
+## 🏗️ Build y preview
+
+Compila el frontend para producción:
 
 ```bash
 npm run build
+```
+
+Previsualiza la build localmente:
+
+```bash
 npm run preview
 ```
 
-## Despliegue con Docker
+---
 
-Estas instrucciones usan el `docker-compose.yml` incluido en la raíz. El
-servicio levanta dos contenedores: `backend` (FastAPI) y `frontend` (Vite).
+## 🐳 Despliegue con Docker
 
-1. Requisitos locales
+El proyecto incluye un archivo `docker-compose.yml` que levanta dos servicios:
 
-- Docker y Docker Compose instalados en tu máquina.
+- `backend` → API de **FastAPI**
+- `frontend` → Aplicación web con **Vite**
 
-1. Construir las imágenes
+### 1. Construir las imágenes
 
 ```bash
 docker-compose build
 ```
 
-1. Inicializar y levantar
+### 2. Levantar los contenedores
 
-Si quieres que la base de datos persista en un volumen local (recomendado):
+Para ejecución en segundo plano:
 
 ```bash
 docker-compose up -d
 ```
 
-Si prefieres levantar en primer plano para ver logs:
+O si prefieres ver los logs directamente en consola:
 
 ```bash
 docker-compose up
 ```
 
-1. Inicializar la base de datos (si no se ha incluido en la imagen)
+### 3. Inicializar la base de datos
 
-La imagen del backend asume que la base de datos estará en `/data/helpdesk.db`.
-Puedes inicializarla de dos maneras:
+El backend usa una base de datos **SQLite** por defecto, ubicada en `/data/helpdesk.db`.
 
-- Ejecutar el script `base/init_db.py` localmente antes de levantar los
+Puedes crearla de dos formas:
 
-  contenedores y montar la carpeta donde quedó el fichero en el volumen `db_data`.
+#### 🅰️ Opción A — Desde tu máquina
 
-- O entrar al contenedor y ejecutar el script dentro:
+Ejecuta el script de inicialización antes de levantar los contenedores:
+
+```bash
+python base/init_db.py --seed --out ./data/helpdesk.db --reset
+```
+
+Luego, monta esa carpeta como volumen `db_data`.
+
+#### 🅱️ Opción B — Dentro del contenedor
 
 ```bash
 docker-compose exec backend python base/init_db.py --seed --out /data/helpdesk.db --reset
 ```
 
-1. Smoke test (comprobar que funciona)
+---
 
-- Frontend: abrir `http://localhost:3000`
-- Backend health/smoke: hacer una petición rápida al endpoint de tickets o
+## 🧪 Comprobación (Smoke Test)
 
-  login. Ejemplo con curl:
+Verifica que todo esté funcionando correctamente:
+
+- **Frontend:**  
+  [http://localhost:3000](http://localhost:3000)
+
+- **Backend:**  
+  Test rápido del endpoint `/auth/login` con usuario por defecto (`admin / admin123`):
 
 ```bash
-curl -sS -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d '{"username":"admin","password":"admin"}' | jq
+curl -sS -X POST http://localhost:8000/auth/login   -H "Content-Type: application/json"   -d '{"username":"admin","password":"admin123"}' | jq
 ```
 
-1. Logs y parada
+Si ves un token JWT en la respuesta, todo está bien ✅
+
+---
+
+## 📋 Logs y apagado
+
+Ver logs del backend:
 
 ```bash
 docker-compose logs -f backend
+```
+
+Apagar y eliminar contenedores (y volúmenes):
+
+```bash
 docker-compose down -v
 ```
 
-Notas
+---
 
-- Si cambias código backend, reconstruye la imagen con `docker-compose build backend`.
-- La variable `HELPDESK_DB_PATH` en el servicio `backend` ya apunta a `/data/helpdesk.db`.
-- Por simplicidad usamos SQLite en un volumen; para producción considera
+## 🧠 Notas y buenas prácticas
 
-  usar Postgres/MySQL y migraciones con Alembic.
+- Si haces cambios en el **backend**, reconstruye la imagen:
+  ```bash
+  docker-compose build backend
+  ```
+- La variable `HELPDESK_DB_PATH` ya apunta a `/data/helpdesk.db`.
+- Para producción se recomienda:
+  - Migrar a **PostgreSQL** o **MySQL**
+  - Usar **Alembic** para migraciones
+  - Servir el frontend con **Nginx**
+
+---
+
+> 📘 **Autor:** Proyecto Boscodesk  
+> 📅 Última actualización: Octubre 2025  
+> 🧩 Tecnologías: FastAPI · React · Tailwind · SQLite · Docker
