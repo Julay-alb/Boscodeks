@@ -5,7 +5,7 @@ import backend.server as server_module
 client = TestClient(server_module.app)
 
 
-def login_token(username="admin", password="changeme"):
+def login_token(username="admin", password="admin123"):
     r = client.post("/auth/login", json={"username": username, "password": password})
     assert r.status_code == 200
     return r.json()["token"]
