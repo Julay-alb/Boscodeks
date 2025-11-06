@@ -129,10 +129,11 @@ const UserManagement = ({ onClose, onUserCreated }) => {
             <select
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3"
+              className="w-full bg-gray-900 border border-white/20 rounded-lg px-4 py-3"
             >
               <option value="agent">Agente</option>
               <option value="admin">Administrador</option>
+              <option value="user">Usuario</option>
             </select>
           </div>
 
