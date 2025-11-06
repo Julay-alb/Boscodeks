@@ -89,7 +89,7 @@ const TicketForm = ({ onSubmit, onClose }) => {
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full bg-gray-700 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="w-full bg-gray-900 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
               >
                 <option value="low">Baja</option>
                 <option value="medium">Media</option>
