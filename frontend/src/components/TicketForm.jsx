@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
 
 const TicketForm = ({ onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    priority: "medium",
-    category: "technical",
-    assignedTo: "",
+    title: '',
+    description: '',
+    priority: 'medium',
+    category: 'technical',
+    assignedTo: '',
   });
 
   const handleSubmit = (e) => {
@@ -18,17 +18,17 @@ const TicketForm = ({ onSubmit, onClose }) => {
 
     if (!formData.title.trim() || !formData.description.trim()) {
       toast({
-        title: "Error",
-        description: "Por favor completa todos los campos requeridos",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Por favor completa todos los campos requeridos',
+        variant: 'destructive',
       });
       return;
     }
 
     onSubmit(formData);
     toast({
-      title: "¡Éxito!",
-      description: "Ticket creado correctamente",
+      title: '¡Éxito!',
+      description: 'Ticket creado correctamente',
     });
   };
 
@@ -59,15 +59,11 @@ const TicketForm = ({ onSubmit, onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-purple-200 mb-2">
-              Título *
-            </label>
+            <label className="block text-sm font-semibold text-purple-200 mb-2">Título *</label>
             <input
               type="text"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
               placeholder="Describe el problema brevemente"
               required
@@ -80,9 +76,7 @@ const TicketForm = ({ onSubmit, onClose }) => {
             </label>
             <textarea
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all min-h-[120px]"
               placeholder="Proporciona detalles sobre el problema"
               required
@@ -91,15 +85,11 @@ const TicketForm = ({ onSubmit, onClose }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-purple-200 mb-2">
-                Prioridad
-              </label>
+              <label className="block text-sm font-semibold text-purple-200 mb-2">Prioridad</label>
               <select
                 value={formData.priority}
-                onChange={(e) =>
-                  setFormData({ ...formData, priority: e.target.value })
-                }
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                className="w-full bg-gray-700 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
               >
                 <option value="low">Baja</option>
                 <option value="medium">Media</option>
@@ -109,20 +99,17 @@ const TicketForm = ({ onSubmit, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-purple-200 mb-2">
-                Categoría
-              </label>
+              <label className="block text-sm font-semibold text-purple-200 mb-2">Categoría</label>
               <select
                 value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
-                }
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full bg-gray-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
               >
-                <option value="technical">Técnico</option>
-                <option value="billing">Facturación</option>
-                <option value="general">General</option>
-                <option value="feature">Nueva Funcionalidad</option>
+                <option value="technical">REQUERIMIENTO</option>
+                <option value="billing">INCIDENTE</option>
+                <option value="general">CREACIÓN</option>
+                <option value="general">ELIMINACIÓN</option>
+                <option value="feature">INSTALACIÓN</option>
               </select>
             </div>
           </div>
@@ -134,9 +121,7 @@ const TicketForm = ({ onSubmit, onClose }) => {
             <input
               type="text"
               value={formData.assignedTo}
-              onChange={(e) =>
-                setFormData({ ...formData, assignedTo: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
               className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
               placeholder="Nombre del responsable"
             />
